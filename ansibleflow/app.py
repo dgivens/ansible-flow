@@ -11,9 +11,9 @@ class ArgumentMapper(object):
 
     def execute(self):
         for arg_name, func in self._mapping.items():
-            arg = getattr(self._args, arg_name, None)
-            if arg:
-                func(arg, self._args)
+            action = getattr(self._args, arg_name, None)
+            if action:
+                func(action, self._args)
 
 
 def setup_argument_parser():
@@ -50,13 +50,29 @@ def setup_argument_parser():
     )
 
     run_parser = subparsers.add_parser('run')
-    run_parser.add_argument('--env', type=str, default='default')
     run_parser.add_argument(
         'run_action',
-        nargs='*',
+        type=str,
         default=True,
         help=argparse.SUPPRESS
     )
+    run_parser.add_argument(
+            '--env',
+            type=str,
+            default='default')
+    run_parser.add_argument(
+            "-v",
+            "--verbosity",
+            action="count",
+            default=0,
+            help="increase output verbosity")
+    run_parser.add_argument(
+            '--file',
+            type=str,
+            default=None)
+    run_parser.add_argument(
+            '--extra-vars',
+            nargs='*')
 
     return parser
 

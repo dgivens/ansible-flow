@@ -106,5 +106,6 @@ def get_config(filename='./project.yml'):
     global _config  # Ugly, but it works for now
 
     if not _config:
-        _config = load_config(os.path.abspath(filename))
+        _config = load_config(os.path.abspath(
+                filename or './project.yml'))
     return _config

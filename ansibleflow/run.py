@@ -18,8 +18,11 @@ def convert_var_filename_to_arg(filename):
     return ' -e @{0}'.format(os.path.abspath(filename))
 
 
-def build_ansible_command(playbook, target, environment):
+def build_ansible_command(playbook, target, environment, arguments):
     command = 'ansible-playbook'
+
+    if arguments.verbosity > 0:
+        command += ' -{0}'.format('v' * arguments.verbosity)
 
     if target.options:
         command += ' {0}'.format(target.options)
@@ -42,12 +45,20 @@ def build_ansible_command(playbook, target, environment):
     if target.tags:
         command += ' --tags "{0}"'.format(target.tags)
 
+    if arguments.extra_vars and len(arguments.extra_vars) > 0:
+        extra = arguments.extra_vars[0]
+        if extra.startswith('"') or extra.startswith("'"):
+            command += ' --extra-vars {0}'.format(extra)
+        else:
+            command += ' --extra-vars "{0}"'.format(extra)
+
     return command
 
 
 def run(target_name, env_name, arguments, dry_run=False):
-    target = get_config().targets.get(target_name, None)
-    environment = get_config().environments.get(env_name, None)
+    target = get_config(filename=arguments.file).targets.get(target_name)
+    environment = get_config(filename=arguments.file).environments.get(
+            env_name)
 
     if not env_exists():
         log('Virtual environment does not exist.. '
@@ -63,7 +74,8 @@ def run(target_name, env_name, arguments, dry_run=False):
         sys.exit(1)
 
     for playbook in target.playbooks:
-        command = build_ansible_command(playbook, target, environment)
+        command = build_ansible_command(
+                playbook, target, environment, arguments)
         log(command)
 
         if not dry_run:
@@ -76,9 +88,9 @@ def run(target_name, env_name, arguments, dry_run=False):
             execute_under_env(command, os_env or None)
 
 
-def argument_handler(value, all_args):
-    if value is True:
-        log('Please specify a target to run...')
+def argument_handler(action, all_args):
+    if action is True:
+        log('Please specify a target action to run...')
         sys.exit(1)
 
-    run(value[0], all_args.env, all_args)
+    run(action, all_args.env, all_args)

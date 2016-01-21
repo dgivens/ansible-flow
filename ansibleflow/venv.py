@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+import sys
 import virtualenv as venv
 
 from ansibleflow import log
@@ -38,7 +39,9 @@ def execute_under_env(command, os_env=None):
         proc.stdin.write(long_cmd.encode('utf-8'))
         proc.stdin.flush()
 
-        proc.wait()
+        returncode = proc.wait()
+        if returncode:
+            sys.exit(returncode)
 
 
 def create_env():
