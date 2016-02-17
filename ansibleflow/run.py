@@ -82,7 +82,9 @@ def run(target_name, env_name, arguments, dry_run=False):
             os_env = {}
             if environment.shell_vars:
                 os_env.update(environment.shell_vars)
-            if environment.ansible_config:
+            if arguments.ansible_config:
+                os_env.update({'ANSIBLE_CONFIG': arguments.ansible_config})
+            elif environment.ansible_config:
                 os_env.update({'ANSIBLE_CONFIG': environment.ansible_config})
 
             execute_under_env(command, os_env or None)

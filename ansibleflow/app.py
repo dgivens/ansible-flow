@@ -71,6 +71,10 @@ def setup_argument_parser():
             type=str,
             default=None)
     run_parser.add_argument(
+            '--ansible-config',
+            type=str,
+            default=None)
+    run_parser.add_argument(
             '--extra-vars',
             nargs='*')
 
